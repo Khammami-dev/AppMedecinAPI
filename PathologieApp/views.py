@@ -1,10 +1,37 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import  JSONParser
-from PathologieApp.models import Symptomes,Pathologies
-from PathologieApp.serializers import SymptomeSerializer, PathologieSerializer
+from PathologieApp.models import Symptomes,Pathologies,Patients,Exercices
+from PathologieApp.serializers import SymptomeSerializer, PathologieSerializer, PatientSerializer, ExerciceSerializer
 from django.http.response  import JsonResponse
 # Create your views here.
+
+@csrf_exempt
+def exerciceApi(request,id=0):
+    if request.method=='GET':
+        exercices = Exercices.objects.all()
+        exercice_serializer = ExerciceSerializer(exercices, many=True)
+        return JsonResponse(exercice_serializer.data, safe=False)
+    elif request.method=='POST':
+        exercice_data = JSONParser().parse(request)
+        exercice_serializer = ExerciceSerializer(data=exercice_data)
+        if exercice_serializer.is_valid():
+            exercice_serializer.save()
+            return JsonResponse("Added Succesfully!", safe=False)
+        return JsonResponse("Faield to Add.", safe=False)
+    elif request.method=='PUT':
+        exercice_data= JSONParser().parse(request)
+        exercice=Exercices.objects.get(id=exercice_data['id'])
+        exercice_serializer=ExerciceSerializer(exercice,data=exercice_data)
+        if exercice_serializer.is_valid():
+            exercice_serializer.save()
+            return JsonResponse("updated Successfully!!", safe=False)
+        return JsonResponse("failed to update.", safe=False)
+    elif request.method=='DELETE':
+        exercice=Exercices.objects.get(id=id)
+        exercice.delete()
+        return JsonResponse("Deleted Succefully", safe=False)
+
 @csrf_exempt
 def symptomeApi(request,id=0):
     if request.method=='GET':
@@ -55,7 +82,35 @@ def pathologieApi(request,id=0):
     elif request.method=='DELETE':
         pathologie=Pathologies.objects.get(id=id)
         pathologie.delete()
-        return JsonResponse("Deleted Succefully", safe=False)    
+        return JsonResponse("Deleted Succefully", safe=False)
+
+@csrf_exempt
+def patientApi(request,id=0):
+    if request.method=='GET':
+        patients = Patients.objects.all()
+        patient_serializer = PatientSerializer(patients, many=True)
+        return JsonResponse(patient_serializer.data, safe=False)
+    elif request.method=='POST':
+        patient_data=JSONParser().parse(request)
+        patient_serializer= PatientSerializer(data=patient_data)
+        if patient_serializer.is_valid():
+            patient_serializer.save()
+            return JsonResponse("Added Succesfully!", safe=False)
+        return JsonResponse("Faield to Add.", safe=False)
+    elif request.method=='PUT':
+        patient_data= JSONParser().parse(request)
+        patient=Patients.objects.get(id=patient_data['id'])
+        patient_serializer=PatientSerializer(patient,data=patient_data)
+        if patient_serializer.is_valid():
+            patient_serializer.save()
+            return JsonResponse("updated Successfully!!", safe=False)
+        return JsonResponse("failed to update.", safe=False)
+    elif request.method=='DELETE':
+        patient=Patients.objects.get(id=id)
+        patient.delete()
+        return JsonResponse("Deleted Succefully", safe=False)
+
+
 
 
 
